@@ -12,6 +12,22 @@ flatpak permissions webextensions
 
 If the output of this command shows that Snap/Flatpak are preventing Firenvim from running, you need to run `flatpak permission-set webextensions firenvim snap.firefox yes` to change that.
 
+## LibreWolf / Firefox: Local Network Access (LNA) blocks the WebSocket
+
+Recent versions of Firefox and LibreWolf enable **Local Network Access** checks for WebSockets. Firenvim connects the editor frame to Neovim via `ws://127.0.0.1:<random-port>`, so if LNA is enforced for WebSockets the frame cannot connect and the Firenvim UI appears for a split second and immediately closes. The browser console will show an error like:
+
+```
+Firefox/LibreWolf can’t establish a connection to the server at ws://127.0.0.1:<port>/...
+```
+
+`network.lna.local-network-to-localhost.skip-checks` does not help here because extension pages (`moz-extension://...`) are not treated as "private network" origins. There is currently no WebExtension API or per-extension LNA exception, so the only practical workaround is to disable LNA for WebSockets globally:
+
+- Open `about:config`.
+- Set `network.lna.websocket.enabled` to `false`.
+- Reload Firenvim or restart the browser.
+
+Note that this removes LNA protection for **all** WebSocket connections (websites can then probe `127.0.0.1`/private IPs over WebSockets without a prompt), so it is a security/privacy trade-off.
+
 ## Make sure the Neovim plugin is installed
 
 Run Neovim without any arguments and then try to run the following line:
