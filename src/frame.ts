@@ -217,7 +217,7 @@ export const isReady = browser
                 // to write the file, which requires too many os-dependent side
                 // effects), so don't instrument.
                 /* istanbul ignore next */
-                writeFilePromise.catch(() => reject());
+                writeFilePromise.catch((e: any) => { console.error("writeFilePromise failed:", e); reject(e); });
             }, 10));
         } catch (e) {
             console.error(e);
