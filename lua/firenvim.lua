@@ -1,7 +1,9 @@
 local websocket = require("firenvim-websocket")
 
 local function close_server(server)
-        vim.loop.close(server)
+        if server ~= nil and not server:is_closing() then
+                server:close()
+        end
         -- Work around https://github.com/glacambre/firenvim/issues/49 Note:
         -- important to do this before nvim_command("qall") because it breaks
         vim.loop.new_timer():start(1000, 100, (function() os.exit() end))
@@ -32,7 +34,7 @@ local function connection_handler(server, sock, token)
         return function(err, chunk)
                 assert(not err, err)
                 if not chunk then
-                        return close_server()
+                        return close_server(server)
                 end
                 local _
                 if not headers then
